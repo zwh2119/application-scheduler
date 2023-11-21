@@ -16,7 +16,15 @@ class ScheduleServer:
                      response_class=JSONResponse,
                      methods=['GET']
                      ),
+            APIRoute('/scenario',
+                     self.update_scenario,
+                     response_class=JSONResponse,
+                     methods=['POST']
+                     ),
         ], log_level='trace', timeout=6000)
 
     def generate_schedule(self):
+        pass
+
+    def update_scenario(self):
         pass
