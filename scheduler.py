@@ -12,5 +12,17 @@ priority
 """
 
 
-def schedule():
-    pass
+class Scheduler:
+    def __init__(self):
+        self.schedule_table = {}
+
+    def register_schedule_table(self, source_id):
+        if source_id in self.schedule_table:
+            return
+        self.schedule_table[source_id] = {}
+
+    def get_schedule_plan(self):
+        pass
+
+    def update_scheduler_scenario(self, source_id, scenario_data):
+        pass
