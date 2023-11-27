@@ -25,6 +25,11 @@ class ScheduleServer:
                      ),
         ], log_level='trace', timeout=6000)
 
+        self.app.add_middleware(
+            CORSMiddleware, allow_origins=["*"], allow_credentials=True,
+            allow_methods=["*"], allow_headers=["*"],
+        )
+
         self.scheduler = Scheduler()
 
     # TODO: complete schedule plan generator
@@ -33,7 +38,13 @@ class ScheduleServer:
         source_id = data['source_id']
         self.scheduler.register_schedule_table(source_id)
 
+        plan = self.scheduler.get_schedule_plan()
+
+        return {'plan': plan}
+
     # TODO: complete scenario update
     async def update_scenario(self, request: Request):
         data = await request.json()
         self.scheduler.update_scheduler_scenario(data['source_id'], data['scenario'])
+
+        return {'msg': 'scheduler scenario update successfully!'}

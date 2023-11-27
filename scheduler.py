@@ -7,8 +7,6 @@ frame number
 encoding
 worker (ip:port)
 priority
-
-
 """
 
 
