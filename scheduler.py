@@ -9,6 +9,8 @@ worker (ip:port)
 priority
 """
 
+from pid import PIDController
+
 
 class Scheduler:
     def __init__(self):
@@ -23,4 +25,7 @@ class Scheduler:
         pass
 
     def update_scheduler_scenario(self, source_id, scenario_data):
+        pass
+
+    def get_cold_start_plan(self, info):
         pass
