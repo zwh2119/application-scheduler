@@ -19,7 +19,7 @@ class ScheduleServer:
                      methods=['GET']
                      ),
             APIRoute('/scenario',
-                     self.update_scenario,
+                     self.deal_response,
                      response_class=JSONResponse,
                      methods=['POST']
                      ),
@@ -32,19 +32,19 @@ class ScheduleServer:
 
         self.scheduler = Scheduler()
 
-    # TODO: complete schedule plan generator
     async def generate_schedule_plan(self, request: Request):
         data = await request.json()
         source_id = data['source_id']
         self.scheduler.register_schedule_table(source_id)
 
-        plan = self.scheduler.get_schedule_plan()
+        plan = self.scheduler.get_schedule_plan(data)
 
         return {'plan': plan}
 
-    # TODO: complete scenario update
-    async def update_scenario(self, request: Request):
-        data = await request.json()
+    def update_scenario(self, data):
         self.scheduler.update_scheduler_scenario(data['source_id'], data['scenario'])
 
+    async def deal_response(self, request: Request, backtask: BackgroundTasks):
+        data = await request.json()
+        backtask.add_task(self.update_scenario, data)
         return {'msg': 'scheduler scenario update successfully!'}

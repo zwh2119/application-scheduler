@@ -19,7 +19,7 @@ class Scheduler:
             return
         self.schedule_table[source_id] = {}
 
-    def get_schedule_plan(self):
+    def get_schedule_plan(self, info):
         pass
 
     def update_scheduler_scenario(self, source_id, scenario_data):
