@@ -1,4 +1,5 @@
 import asyncio
+import threading
 
 from fastapi import FastAPI, BackgroundTasks
 
@@ -31,6 +32,8 @@ class ScheduleServer:
         )
 
         self.scheduler = Scheduler()
+
+        threading.Thread(target=self.scheduler.run).start()
 
     async def generate_schedule_plan(self, request: Request):
         data = await request.json()

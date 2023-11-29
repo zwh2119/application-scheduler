@@ -2,13 +2,13 @@ import time
 
 
 class PIDController:
-    def __init__(self, min_value, max_value):
+    def __init__(self):
         self.Kp = 1
         self.Ki = 0.1
         self.Kd = 0.01
 
-        self.min_value = min_value
-        self.max_value = max_value
+        self.min_value = -3
+        self.max_value = 3
 
         self.cur_time = time.time()
         self.last_time = self.cur_time
