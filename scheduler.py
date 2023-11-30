@@ -34,6 +34,9 @@ class Scheduler:
 
         self.address_diverse_dict = {v: k for k, v in self.address_dict.items()}
 
+        self.resolution_list = ['360p', '720p', '1080p']
+        self.fps_list = [1, 5, 10, 15, 20, 25, 30]
+
     def register_schedule_table(self, source_id):
         if source_id in self.schedule_table:
             return
@@ -79,22 +82,69 @@ class Scheduler:
                 latency = self.calculate_latency(pipeline)
                 pid_out = pid.update(latency)
 
-                plan = self.adjust_configuration(pid_out, meta_data, pipeline)
+                plan = self.adjust_plan_configuration(pid_out, meta_data, pipeline)
                 task_schedule['plan'] = plan
 
             # schedule interval
             time.sleep(self.schedule_interval)
 
-    def adjust_configuration(self, pid_out, meta_data, pipeline):
+    def adjust_plan_configuration(self, pid_out, meta_data, pipeline):
         position = self.map_pipeline_2_position(pipeline)
+        resolution = meta_data['resolution']
+        fps = meta_data['fps']
+        resolution_raw = meta_data['resolution_raw']
+        fps_raw = meta_data['fps_raw']
+
+        done = False
+        if pid_out > 0:
+            if pid_out > 3:
+                position, done = self.change_position(position, 1)
+            if pid_out > 2 or not done:
+                resolution, done = self.change_single_configuration(self.resolution_list, 1, resolution, resolution_raw)
+            if pid_out > 1 or not done:
+                fps, done = self.change_single_configuration(self.fps_list, 1, fps, fps_raw)
+        if pid_out < 0:
+            if pid_out < -3 or not done:
+                position, done = self.change_position(position, -1)
+            if pid_out < -2 or not done:
+                resolution, done = self.change_single_configuration(self.resolution_list, -1, resolution,
+                                                                    resolution_raw)
+            if pid_out < -1:
+                fps, done = self.change_single_configuration(self.fps_list, -1, fps, fps_raw)
 
         return {
-            'resolution': None,
-            'fps': None,
+            'resolution': resolution,
+            'fps': fps,
             'encoding': 'mp4v',
             'priority': 0,
             'pipeline': self.map_position_2_pipeline(position, pipeline)
         }
+
+    def change_position(self, position, direction):
+        done = False
+        if direction > 0:
+            for i in range(len(position)):
+                if position[i] == 'edge':
+                    position[i] = 'cloud'
+                    done = True
+                    break
+        else:
+            for i in range(len(position)):
+                if position[i] == 'cloud':
+                    position[i] = 'edge'
+                    done = True
+                    break
+        return position, done
+
+    def change_single_configuration(self, config_list: list, direction, cur_config, max_config=None):
+        cur_index = config_list.index(cur_config)
+        max_index = config_list.index(max_config) if max_config is not None else len(config_list) - 1
+        min_index = 0
+        new_index = cur_index + direction
+        new_index = max(new_index, min_index)
+        new_index = min(new_index, max_index)
+
+        return config_list[new_index], new_index != cur_index
 
     def calculate_latency(self, pipeline):
         latency = 0

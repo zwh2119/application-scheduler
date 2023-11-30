@@ -51,3 +51,6 @@ class ScheduleServer:
         data = await request.json()
         backtask.add_task(self.update_scenario, data)
         return {'msg': 'scheduler scenario update successfully!'}
+
+
+app = ScheduleServer().app
