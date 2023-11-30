@@ -68,7 +68,10 @@ class Scheduler:
 
     def run(self):
         while True:
-            for task_schedule in self.schedule_table:
+            print('update schedule')
+            for source_id in self.schedule_table:
+                task_schedule = self.schedule_table[source_id]
+
                 if 'scenario' not in task_schedule:
                     continue
 
@@ -80,10 +83,12 @@ class Scheduler:
                 meta_data = scenario['meta_data']
 
                 latency = self.calculate_latency(pipeline)
+                latency = self.finetune_real_frame_latency(latency, meta_data)
                 pid_out = pid.update(latency)
 
                 plan = self.adjust_plan_configuration(pid_out, meta_data, pipeline)
                 task_schedule['plan'] = plan
+                print(f'id:{source_id} latency:{latency} pid:{pid_out} plan:{plan}')
 
             # schedule interval
             time.sleep(self.schedule_interval)
@@ -97,12 +102,13 @@ class Scheduler:
 
         done = False
         if pid_out > 0:
-            if pid_out > 3:
-                position, done = self.change_position(position, 1)
+
+            if pid_out > 1:
+                fps, done = self.change_single_configuration(self.fps_list, 1, fps, fps_raw)
             if pid_out > 2 or not done:
                 resolution, done = self.change_single_configuration(self.resolution_list, 1, resolution, resolution_raw)
-            if pid_out > 1 or not done:
-                fps, done = self.change_single_configuration(self.fps_list, 1, fps, fps_raw)
+            if pid_out > 3 or not done:
+                position, done = self.change_position(position, 1)
         if pid_out < 0:
             if pid_out < -3 or not done:
                 position, done = self.change_position(position, -1)
@@ -122,7 +128,7 @@ class Scheduler:
 
     def change_position(self, position, direction):
         done = False
-        if direction > 0:
+        if direction < 0:
             for i in range(len(position)):
                 if position[i] == 'edge':
                     position[i] = 'cloud'
@@ -149,10 +155,16 @@ class Scheduler:
     def calculate_latency(self, pipeline):
         latency = 0
         for task in pipeline:
-            latency += task['transmit_time']
+            latency += task['execute_data']['transmit_time']
             if task['service_name'] != 'end':
-                latency += task['service_time']
+                latency += task['execute_data']['service_time']
         return latency
+
+    def finetune_real_frame_latency(self, latency, meta_data):
+        fps = meta_data['fps']
+        fps_raw = meta_data['fps_raw']
+        buffer_size = meta_data['frame_number']
+        return latency / int(buffer_size*fps_raw/fps)
 
     def map_pipeline_2_position(self, pipeline):
         position = []
