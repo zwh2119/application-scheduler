@@ -7,8 +7,6 @@ encoding
 pipeline[{execute_address}, {execute_address}]
 priority
 """
-import time
-
 from pid import PIDController
 from utils import *
 
