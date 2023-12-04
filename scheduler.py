@@ -94,9 +94,9 @@ class Scheduler:
     def adjust_plan_configuration(self, pid_out, meta_data, pipeline):
         position = self.map_pipeline_2_position(pipeline)
         resolution = meta_data['resolution']
-        fps = meta_data['fps']
+        fps = round(meta_data['fps'])
         resolution_raw = meta_data['resolution_raw']
-        fps_raw = meta_data['fps_raw']
+        fps_raw = round(meta_data['fps_raw'])
 
         done = False
         if pid_out > 0:
@@ -127,7 +127,7 @@ class Scheduler:
     def change_position(self, position, direction):
         done = False
         if direction < 0:
-            for i in range(len(position)):
+            for i in range(len(position)-1, -1, -1):
                 if position[i] == 'edge':
                     position[i] = 'cloud'
                     done = True
