@@ -106,6 +106,9 @@ class Scheduler:
         resolution_raw = meta_data['resolution_raw']
         fps_raw = round(meta_data['fps_raw'])
 
+        source_device = self.address_diverse_dict[get_merge_address(meta_data['source_ip'], port=controller_port,
+                                                                    path=controller_path)]
+
         done = False
         if pid_out > 0:
 
@@ -132,18 +135,18 @@ class Scheduler:
             'pipeline': self.map_position_2_pipeline(position, pipeline)
         }
 
-    def change_position(self, position, direction):
+    def change_position(self, position, source_position, direction):
         done = False
         if direction < 0:
             for i in range(len(position) - 1, -1, -1):
-                if position[i] == 'edge':
+                if position[i] == source_position:
                     position[i] = 'cloud'
                     done = True
                     break
         else:
             for i in range(len(position)):
                 if position[i] == 'cloud':
-                    position[i] = 'edge'
+                    position[i] = source_position
                     done = True
                     break
         return position, done
