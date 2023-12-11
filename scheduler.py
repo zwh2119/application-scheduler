@@ -12,10 +12,15 @@ from utils import *
 
 user_constraint = 0.3
 
-cloud_ip = '114.212.81.11'
-edge_ip = '192.168.1.2'
-
 controller_port = 9002
+controller_path = 'submit_task'
+
+computing_devices = [
+    {'hostname': 'cloud', 'ip': '114.212.81.11', 'weight': 1},
+    {'hostname': 'edge1', 'ip': '192.168.1.2', 'weight': 2},
+    {'hostname': 'edge2', 'ip': '192.168.1.4', 'weight': 2},
+
+]
 
 
 class Scheduler:
@@ -24,15 +29,18 @@ class Scheduler:
 
         self.schedule_interval = 1
 
-        self.ip_dict = {'cloud': '114.212.81.11', 'edge': '192.168.1.2'}
+        self.computing_devices = computing_devices
 
+        self.ip_dict = {}
         self.address_dict = {}
-        for ip in self.ip_dict:
-            self.address_dict[ip] = get_merge_address(self.ip_dict[ip], port=controller_port, path='submit_task')
+        for device in self.computing_devices:
+            self.ip_dict[device['host_name']] = device['ip']
+            self.address_dict[device['host_name']] = get_merge_address(device['ip'], port=controller_port,
+                                                                       path=controller_path)
 
         self.address_diverse_dict = {v: k for k, v in self.address_dict.items()}
 
-        self.resolution_list = ['360p', '720p', '1080p']
+        self.resolution_list = ['360p', '480p', '720p', '1080p']
         self.fps_list = [1, 5, 10, 15, 20, 25, 30]
 
     def register_schedule_table(self, source_id):
@@ -127,7 +135,7 @@ class Scheduler:
     def change_position(self, position, direction):
         done = False
         if direction < 0:
-            for i in range(len(position)-1, -1, -1):
+            for i in range(len(position) - 1, -1, -1):
                 if position[i] == 'edge':
                     position[i] = 'cloud'
                     done = True
@@ -162,7 +170,7 @@ class Scheduler:
         fps = meta_data['fps']
         fps_raw = meta_data['fps_raw']
         buffer_size = meta_data['frame_number']
-        return latency / int(buffer_size*fps_raw/fps)
+        return latency / int(buffer_size * fps_raw / fps)
 
     def map_pipeline_2_position(self, pipeline):
         position = []
