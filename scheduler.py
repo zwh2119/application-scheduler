@@ -18,7 +18,7 @@ controller_path = 'submit_task'
 computing_devices = [
     {'hostname': 'cloud', 'ip': '114.212.81.11', 'weight': 1},
     {'hostname': 'edge1', 'ip': '192.168.1.2', 'weight': 2},
-    {'hostname': 'edge2', 'ip': '192.168.1.4', 'weight': 2},
+    {'hostname': 'edge2', 'ip': '192.168.1.5', 'weight': 2},
 
 ]
 
@@ -34,8 +34,8 @@ class Scheduler:
         self.ip_dict = {}
         self.address_dict = {}
         for device in self.computing_devices:
-            self.ip_dict[device['host_name']] = device['ip']
-            self.address_dict[device['host_name']] = get_merge_address(device['ip'], port=controller_port,
+            self.ip_dict[device['hostname']] = device['ip']
+            self.address_dict[device['hostname']] = get_merge_address(device['ip'], port=controller_port,
                                                                        path=controller_path)
 
         self.address_diverse_dict = {v: k for k, v in self.address_dict.items()}
@@ -117,10 +117,10 @@ class Scheduler:
             if pid_out > 2 or not done:
                 resolution, done = self.change_single_configuration(self.resolution_list, 1, resolution, resolution_raw)
             if pid_out > 3 or not done:
-                position, done = self.change_position(position, 1)
+                position, done = self.change_position(position, source_device, 1)
         if pid_out < 0:
             if pid_out < -3 or not done:
-                position, done = self.change_position(position, -1)
+                position, done = self.change_position(position, source_device,-1)
             if pid_out < -2 or not done:
                 resolution, done = self.change_single_configuration(self.resolution_list, -1, resolution,
                                                                     resolution_raw)
