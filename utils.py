@@ -1,6 +1,8 @@
 import socket
 import time
 
+import requests
+
 
 def record_time(data: dict, time_sign: str):
     if time_sign in data:
@@ -44,3 +46,5 @@ def get_host_ip():
         s.close()
 
     return ip
+
+
