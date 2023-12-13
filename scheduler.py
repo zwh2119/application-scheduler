@@ -10,6 +10,8 @@ priority
 from pid import PIDController
 from utils import *
 
+from log import LOGGER
+
 user_constraint = 0.3
 
 controller_port = 9002
@@ -74,7 +76,7 @@ class Scheduler:
 
     def run(self):
         while True:
-            print('update schedule')
+            LOGGER.debug('update schedule')
             for source_id in self.schedule_table:
                 task_schedule = self.schedule_table[source_id]
 
@@ -94,7 +96,7 @@ class Scheduler:
 
                 plan = self.adjust_plan_configuration(pid_out, meta_data, pipeline)
                 task_schedule['plan'] = plan
-                print(f'id:{source_id} latency:{latency} pid:{pid_out} plan:{plan}')
+                LOGGER.info(f'id:{source_id} latency:{latency} pid:{pid_out} plan:{plan}')
 
             # schedule interval
             time.sleep(self.schedule_interval)
