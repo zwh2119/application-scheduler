@@ -23,6 +23,11 @@ class ScheduleServer:
                      response_class=JSONResponse,
                      methods=['POST']
                      ),
+            APIRoute('/resource',
+                     self.update_resource_state,
+                     response_class=JSONResponse,
+                     methods=['POST']
+                     ),
         ], log_level='trace', timeout=6000)
 
         self.app.add_middleware(
@@ -42,6 +47,12 @@ class ScheduleServer:
         plan = self.scheduler.get_schedule_plan(data)
 
         return {'plan': plan}
+
+    async def update_resource_state(self, request: Request):
+        data = await request.json()
+        device = data['device']
+        resource_data = data['resource']
+        self.scheduler.update_scheduler_resource(device, resource_data)
 
     def update_scenario(self, data):
         self.scheduler.update_scheduler_scenario(data['source_id'], data['scenario'])

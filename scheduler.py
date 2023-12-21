@@ -28,6 +28,7 @@ computing_devices = [
 class Scheduler:
     def __init__(self):
         self.schedule_table = {}
+        self.resource_table = {}
 
         self.schedule_interval = 1
 
@@ -38,7 +39,7 @@ class Scheduler:
         for device in self.computing_devices:
             self.ip_dict[device['hostname']] = device['ip']
             self.address_dict[device['hostname']] = get_merge_address(device['ip'], port=controller_port,
-                                                                       path=controller_path)
+                                                                      path=controller_path)
 
         self.address_diverse_dict = {v: k for k, v in self.address_dict.items()}
 
@@ -64,15 +65,31 @@ class Scheduler:
             raise Exception(f'illegal source id of {source_id}')
         self.schedule_table[source_id]['scenario'] = scenario_data
 
+    def register_resource_table(self, device):
+        if device in self.resource_table:
+            return
+        self.resource_table[device] = {}
+
+    def update_scheduler_resource(self, device, resource_data):
+        self.register_resource_table(device)
+        self.resource_table[device] = resource_data
+
+    def get_device_resource(self, device):
+        if device not in self.resource_table:
+            LOGGER.warning(f'device of {device} not exists!')
+            return
+
+        return self.resource_table[device]
+
     def get_cold_start_plan(self, info):
-        plan = {
+        cold_plan = {
             'resolution': '720p',
             'fps': 20,
             'encoding': 'mp4v',
             'priority': 0,
             'pipeline': info['pipeline']
         }
-        return plan
+        return cold_plan
 
     def run(self):
         while True:
@@ -122,7 +139,7 @@ class Scheduler:
                 position, done = self.change_position(position, source_device, 1)
         if pid_out < 0:
             if pid_out < -3 or not done:
-                position, done = self.change_position(position, source_device,-1)
+                position, done = self.change_position(position, source_device, -1)
             if pid_out < -2 or not done:
                 resolution, done = self.change_single_configuration(self.resolution_list, -1, resolution,
                                                                     resolution_raw)
