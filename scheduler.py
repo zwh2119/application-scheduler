@@ -14,15 +14,15 @@ from log import LOGGER
 
 user_constraint = 0.3
 
-controller_port = 9002
-controller_path = 'submit_task'
-
 computing_devices = [
     {'hostname': 'cloud', 'ip': '114.212.81.11', 'weight': 1},
     {'hostname': 'edge1', 'ip': '192.168.1.2', 'weight': 2},
     {'hostname': 'edge2', 'ip': '192.168.1.5', 'weight': 2},
 
 ]
+
+
+controller_port = 9200
 
 
 class Scheduler:
@@ -39,7 +39,7 @@ class Scheduler:
         for device in self.computing_devices:
             self.ip_dict[device['hostname']] = device['ip']
             self.address_dict[device['hostname']] = get_merge_address(device['ip'], port=controller_port,
-                                                                      path=controller_path)
+                                                                      path='submit_task')
 
         self.address_diverse_dict = {v: k for k, v in self.address_dict.items()}
 
@@ -126,7 +126,7 @@ class Scheduler:
         fps_raw = round(meta_data['fps_raw'])
 
         source_device = self.address_diverse_dict[get_merge_address(meta_data['source_ip'], port=controller_port,
-                                                                    path=controller_path)]
+                                                                    path='submit_task')]
 
         done = False
         if pid_out > 0:
