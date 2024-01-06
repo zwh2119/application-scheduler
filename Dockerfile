@@ -1,3 +1,5 @@
+ARG dir=app_schedule
+
 FROM python:3.8
 MAINTAINER Wenhui Zhou
 
@@ -5,7 +7,7 @@ COPY ./requirements.txt ./
 RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 WORKDIR /app
-COPY schedule_server.py scheduler.py pid.py log.py utils.py gunicorn.conf.py /app/
+COPY ${dir}/schedule_server.py ${dir}/scheduler.py ${dir}/pid.py ${dir}/log.py ${dir}/utils.py ${dir}/gunicorn.conf.py /app/
 
 
 CMD ["gunicorn", "schedule_server:app", "-c", "./gunicorn.conf.py"]
