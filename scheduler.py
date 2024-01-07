@@ -21,6 +21,9 @@ computing_devices = [
 
 ]
 
+resolution_list = ['360p', '480p', '720p', '1080p']
+
+fps_list = [1, 5, 10, 15, 20, 25, 30]
 
 controller_port = 9200
 
@@ -43,8 +46,8 @@ class Scheduler:
 
         self.address_diverse_dict = {v: k for k, v in self.address_dict.items()}
 
-        self.resolution_list = ['360p', '480p', '720p', '1080p']
-        self.fps_list = [1, 5, 10, 15, 20, 25, 30]
+        self.resolution_list = resolution_list
+        self.fps_list = fps_list
 
     def register_schedule_table(self, source_id):
         if source_id in self.schedule_table:
