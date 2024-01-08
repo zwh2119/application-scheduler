@@ -21,9 +21,9 @@ class Scheduler:
         self.user_constraint = eval(Context.get_parameters('user_constraint'))
         self.controller_port = Context.get_parameters('controller_port')
 
-        config = read_yaml(Context.get_parameters('schedule_config.yaml'))
-        self.resolution_list = config['resolution']
-        self.fps_list = config['fps']
+        schedule_config = read_yaml(Context.get_file_path('schedule_config.yaml'))
+        self.resolution_list = schedule_config['resolution']
+        self.fps_list = schedule_config['fps']
 
         self.schedule_table = {}
         self.resource_table = {}
