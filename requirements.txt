@@ -5,3 +5,5 @@ gunicorn
 python-multipart
 requests
 colorlog
+pyyaml
+kubernetes==20.11.0a1

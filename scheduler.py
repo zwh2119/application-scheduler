@@ -11,50 +11,42 @@ from pid import PIDController
 from utils import *
 
 from log import LOGGER
-
-user_constraint = 0.3
-
-computing_devices = [
-    {'hostname': 'cloud', 'ip': '114.212.81.11', 'weight': 1},
-    {'hostname': 'edge1', 'ip': '192.168.1.2', 'weight': 2},
-    {'hostname': 'edge2', 'ip': '192.168.1.5', 'weight': 2},
-
-]
-
-resolution_list = ['360p', '480p', '720p', '1080p']
-
-fps_list = [1, 5, 10, 15, 20, 25, 30]
-
-controller_port = 9200
+from config import Context
+from yaml_utils import *
 
 
 class Scheduler:
     def __init__(self):
+
+        self.user_constraint = eval(Context.get_parameters('user_constraint'))
+        self.controller_port = Context.get_parameters('controller_port')
+
+        config = read_yaml(Context.get_parameters('schedule_config.yaml'))
+        self.resolution_list = config['resolution']
+        self.fps_list = config['fps']
+
         self.schedule_table = {}
         self.resource_table = {}
 
         self.schedule_interval = 1
 
-        self.computing_devices = computing_devices
+        self.computing_devices = get_nodes_info()
 
         self.ip_dict = {}
         self.address_dict = {}
         for device in self.computing_devices:
             self.ip_dict[device['hostname']] = device['ip']
-            self.address_dict[device['hostname']] = get_merge_address(device['ip'], port=controller_port,
+            self.address_dict[device['hostname']] = get_merge_address(device['ip'], port=self.controller_port,
                                                                       path='submit_task')
 
         self.address_diverse_dict = {v: k for k, v in self.address_dict.items()}
-
-        self.resolution_list = resolution_list
-        self.fps_list = fps_list
 
     def register_schedule_table(self, source_id):
         if source_id in self.schedule_table:
             return
         self.schedule_table[source_id] = {}
         pid = PIDController()
-        pid.set_setpoint(user_constraint)
+        pid.set_setpoint(self.user_constraint)
         self.schedule_table[source_id]['pid'] = pid
 
     def get_schedule_plan(self, info):
@@ -128,7 +120,7 @@ class Scheduler:
         resolution_raw = meta_data['resolution_raw']
         fps_raw = round(meta_data['fps_raw'])
 
-        source_device = self.address_diverse_dict[get_merge_address(meta_data['source_ip'], port=controller_port,
+        source_device = self.address_diverse_dict[get_merge_address(meta_data['source_ip'], port=self.controller_port,
                                                                     path='submit_task')]
 
         done = False
