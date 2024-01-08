@@ -31,6 +31,7 @@ class Scheduler:
         self.schedule_interval = 1
 
         self.computing_devices = get_nodes_info()
+        print(get_nodes_info())
 
         self.ip_dict = {}
         self.address_dict = {}
