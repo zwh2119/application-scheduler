@@ -35,10 +35,11 @@ class Scheduler:
 
         self.ip_dict = {}
         self.address_dict = {}
-        for device in self.computing_devices:
-            self.ip_dict[device['hostname']] = device['ip']
-            self.address_dict[device['hostname']] = get_merge_address(device['ip'], port=self.controller_port,
-                                                                      path='submit_task')
+        for device_name in self.computing_devices:
+            self.ip_dict[device_name] = self.computing_devices[device_name]
+            self.address_dict[device_name] = get_merge_address(self.computing_devices[device_name],
+                                                               port=self.controller_port,
+                                                               path='submit_task')
 
         self.address_diverse_dict = {v: k for k, v in self.address_dict.items()}
 
